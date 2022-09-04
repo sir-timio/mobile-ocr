@@ -18,11 +18,12 @@ def create_app():
         OmegaConf.register_new_resolver('weights_path', _weights_path)
     cfg = OmegaConf.load(_abs_path('configs/config.yml'))
     container = Container()
+    with open('a.txt', 'w') as f:
+        f.write('aaaaa')
     container.config.from_dict(cfg)
     container.wire(modules=[recognition])
 
     set_routes(app)
-    
     return app
 
 
