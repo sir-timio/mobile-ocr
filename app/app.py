@@ -1,10 +1,15 @@
 import os
 
+
+import sys
+sys.path.append('/app')
+
 from flask import Flask
 from omegaconf import OmegaConf
 from service.containers import Container
 from service.routes import recognition
 from service.routes import health_check
+
 
 
 def create_app():
@@ -18,14 +23,11 @@ def create_app():
         OmegaConf.register_new_resolver('weights_path', _weights_path)
     cfg = OmegaConf.load(_abs_path('configs/config.yml'))
     container = Container()
-    with open('a.txt', 'w') as f:
-        f.write('aaaaa')
     container.config.from_dict(cfg)
     container.wire(modules=[recognition])
 
     set_routes(app)
     return app
-
 
 
 def set_routes(app: Flask):
@@ -57,3 +59,7 @@ def _weights_path(local_path: str) -> str:
 
 
 app = create_app()
+
+# @app.route('/')
+# def home():
+#    return "hello world!"
