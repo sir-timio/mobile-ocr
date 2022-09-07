@@ -2,6 +2,7 @@ dependency-injector==4.35.2
 sentry_sdk[flask]
 pytest
 omegaconf==2.1.0
+werkzeug==2.0.3
 
 # service
 Flask==2.0.1
