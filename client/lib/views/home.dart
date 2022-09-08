@@ -17,7 +17,7 @@ class _Home extends State<Home> {
         backgroundColor: primaryBg,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          elevation: 6,
+          elevation: 2,
           backgroundColor: secondaryBg,
           title: Text(
             'Notes',
@@ -31,7 +31,7 @@ class _Home extends State<Home> {
         floatingActionButton: FloatingActionButton(
           tooltip: 'New Note',
           backgroundColor: primary,
-          elevation: 6,
+          elevation: 2,
           onPressed: () => {
             Navigator.of(context).push(_createRoute())
           },
