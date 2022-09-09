@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:client/widgets/note_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +21,26 @@ class _CreateNote extends State<CreateNote> {
   ui.Image? image;
 
   final TextEditingController _titleTextController = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
+
+  void handleTitleTextChange() {
+    setState(() {
+      noteTitle = _titleTextController.text.trim();
+    });
+  }
+
+  void handleTextChange() {
+    setState(() {
+      noteText = _textController.text.trim();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _titleTextController.addListener(handleTitleTextChange);
+    _textController.addListener(handleTextChange);
+  }
 
   _getFromGallery() async {
     final ImagePicker picker = ImagePicker();
@@ -37,6 +58,13 @@ class _CreateNote extends State<CreateNote> {
       image = frame.image;
       setState(() {});
     }
+  }
+
+  @override
+  void dispose() {
+    _titleTextController.dispose();
+    _textController.dispose();
+    super.dispose();
   }
 
   @override
@@ -76,34 +104,7 @@ class _CreateNote extends State<CreateNote> {
                 ),
               ),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
-                  child: TextFormField(
-                    obscureText: false,
-                    decoration: InputDecoration(
-                      hintText: 'Enter text...',
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: primaryBg,
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: primaryBg,
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      fillColor: secondaryBg,
-                      contentPadding:
-                          const EdgeInsetsDirectional.fromSTEB(20, 32, 20, 12),
-                    ),
-                    textAlign: TextAlign.start,
-                    maxLines: 100,
-                  ),
-                ),
+                child: NoteText(_textController),
               ),
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
