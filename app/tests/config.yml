@@ -2,6 +2,6 @@ htr:
   max_threads: 1
   # charset_path: ${}
   model:
-    model_path: ${weights_path:recognizer.script}
+    model_path: ${weights_path:scripted_model.pt}
     device: "cpu"
 #"cuda:0"

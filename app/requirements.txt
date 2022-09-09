@@ -5,6 +5,3 @@ tqdm==4.62.2
 pandas==1.1.5
 scikit-learn==0.24.2
 editdistance
-omegaconf
-werkzeug==2.0.3
-Flask==2.2.2

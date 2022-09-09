@@ -1,1 +1,0 @@
-docker run --name mobile -v ~/ci-ctc-ocr/app:/app -p 8000-8100:8000-8100 -it ocr

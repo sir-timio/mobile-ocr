@@ -1,8 +1,8 @@
 dependency-injector==4.35.2
+dvc[gdrive]==1.11.13
 sentry_sdk[flask]
 pytest
 omegaconf==2.1.0
-werkzeug==2.0.3
 
 # service
 Flask==2.0.1
@@ -17,11 +17,4 @@ numpy==1.21.1
 opencv-python-headless==4.5.3.56
 pandas
 pillow==8.3.2
-
-
-# detection
-anyconfig
-pyclipper 
-editdistance
-
-# recognition
+torch==1.9.0

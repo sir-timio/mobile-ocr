@@ -1,1 +1,0 @@
-docker exec -it -u root mobile bash
