@@ -7,7 +7,9 @@ RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && \
+  apt install -y tmux && \
+    pip install --no-cache-dir -r requirements.txt
 
 # CMD [ "python","run_app.py"]
 #Expose server port

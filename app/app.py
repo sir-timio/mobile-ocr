@@ -2,7 +2,7 @@ import os
 
 
 import sys
-# sys.path.append('/app')
+sys.path.append('/app')
 
 from flask import Flask
 from omegaconf import OmegaConf
