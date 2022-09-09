@@ -1,9 +1,14 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../styles/colors.dart';
 import '../widgets/canvas.dart';
 import '../widgets/note_title.dart';
+import 'dart:ui' as ui;
 
 class CreateNote extends StatefulWidget {
   _CreateNote createState() => _CreateNote();
@@ -12,8 +17,27 @@ class CreateNote extends StatefulWidget {
 class _CreateNote extends State<CreateNote> {
   String noteTitle = '';
   String noteText = '';
+  ui.Image? image;
 
   final TextEditingController _titleTextController = TextEditingController();
+
+  _getFromGallery() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? imageFile = await picker.pickImage(source: ImageSource.gallery);
+    if (imageFile != null) {
+      final path = imageFile.path;
+      Uint8List bytes;
+      if (kIsWeb) {
+        bytes = await imageFile.readAsBytes();
+      } else {
+        bytes = await File(path).readAsBytes();
+      }
+      ui.Codec codec = await ui.instantiateImageCodec(bytes);
+      ui.FrameInfo frame = await codec.getNextFrame();
+      image = frame.image;
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +71,7 @@ class _CreateNote extends State<CreateNote> {
                   borderRadius: BorderRadius.circular(8),
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width * 0.96, 450),
-                    painter: ImageCanvas(),
+                    painter: ImageCanvas(image: image),
                   ),
                 ),
               ),
@@ -85,7 +109,7 @@ class _CreateNote extends State<CreateNote> {
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
                 child: ElevatedButton(
                   onPressed: () {
-                    print('Button pressed ...');
+                    _getFromGallery();
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
