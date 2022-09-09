@@ -1,7 +1,6 @@
 from pathlib import Path
 import sys
 
-
 import locale
 locale.getpreferredencoding(False)
 
@@ -13,8 +12,8 @@ import pytest
 from omegaconf import OmegaConf
 from PIL import Image
 import sys
-sys.path.append('/workspace/handwritten_lines/ci-ctc-ocr/app/')
-from run_app import create_app
+sys.path.append('/app')
+from app.app import create_app
 from service.core.core import HTR
 
 folder_images = 'tests/test_data'

@@ -21,9 +21,10 @@ class HTR:
         self.input_img_height = self.model.input_img_height
         self.input_img_width = self.model.input_img_width
         self.input_img_shape = self.model.input_img_shape
-        tmp_charset_path = '/workspace/handwritten_lines/ci-ctc-ocr/app/resources/num_to_char.json'
-        with open(tmp_charset_path, 'r', encoding="utf-8") as f:
-            self.decoder = dict((int(k), v) for k, v in json.load(f).items())
+        self.blank = self.model.blank
+        self.decoder = dict()
+        for i, c in enumerate(self.model.vocab):
+            self.decoder[i] = c
         self.blank = self.decoder[len(self.decoder)-1]
 
     def predict(self, img: np.ndarray, need_preproc: bool = True) -> str:
@@ -40,8 +41,8 @@ class HTR:
             img = img.copy()
             img = self.preprocess_img(np.array(img))
 
-        img = torch.tensor(img, dtype=torch.float)    
-        raw_preds = self.model.forward(img)
+        tensor = torch.tensor(img, dtype=torch.float)    
+        raw_preds = self.model.forward(tensor)
         label = self.decode_predictions(raw_preds)[0]
         return label
 

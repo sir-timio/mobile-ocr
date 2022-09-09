@@ -1,10 +1,15 @@
 import os
 
+
+import sys
+sys.path.append('/app')
+
 from flask import Flask
 from omegaconf import OmegaConf
 from service.containers import Container
 from service.routes import recognition
 from service.routes import health_check
+
 
 
 def create_app():
@@ -22,9 +27,7 @@ def create_app():
     container.wire(modules=[recognition])
 
     set_routes(app)
-    
     return app
-
 
 
 def set_routes(app: Flask):
