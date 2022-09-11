@@ -2,12 +2,13 @@ import torch
 import numpy as np
 import math
 import cv2
-from service.core.representer import Representer
+from service.utils.representer import Representer
 
 class Detector:
     def __init__(self, config) -> None:
         self.config = config
         self.model = torch.jit.load(config['model_path'], config['device'])
+        self.model.eval()
         self.device = config['device']
         self.mean = np.array(config['mean'])
         self.image_short_side = config['image_short_side']

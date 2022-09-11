@@ -8,6 +8,7 @@ class Recognizer:
     def __init__(self, config) -> None:
         self.config = config
         self.model = torch.jit.load(config['model_path'], config['device'])
+        self.model.eval()
         self.device = config['device']
         self.in_img_channels = config['img_channels']
         self.in_img_height = config['img_height']
@@ -17,7 +18,7 @@ class Recognizer:
         self.blank = config['blank']
         self.chars = self.vocab[:-1]
         self.num_to_char = dict()
-        for i, c in enumerate(self.recognizer.vocab):
+        for i, c in enumerate(self.model.vocab):
             self.num_to_char[i] = c
         self.decoder = build_ctcdecoder(labels=list(self.chars))
         self.beam_width = 50
@@ -36,14 +37,14 @@ class Recognizer:
         
         h, w = img.shape[:2]
         # width proportional to change in h
-        r = self.height / float(h)
+        r = self.in_img_height / float(h)
         new_w = int(w * r)
         # new_width cannot be bigger than width
-        if new_w >= self.width:
-            img = cv2.resize(img, (self.width, self.height), cv2.INTER_CUBIC)
+        if new_w >= self.in_img_width:
+            img = cv2.resize(img, (self.in_img_width, self.in_img_height), cv2.INTER_CUBIC)
         else:
-            delta = self.width - new_w
-            img = cv2.resize(img, (new_w, self.height), cv2.INTER_CUBIC)
+            delta = self.in_img_width - new_w
+            img = cv2.resize(img, (new_w, self.in_img_height), cv2.INTER_CUBIC)
             pad_left = 0
             pad_right = delta
 

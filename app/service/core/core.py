@@ -8,6 +8,7 @@ import torch
 from service.core.recognizer import Recognizer
 from service.core.detector import Detector
 from service.dataclasses.shape import Shape
+from service.utils.box_sorting import sort_boxes
 
 class HTR:
     """
@@ -30,15 +31,27 @@ class HTR:
             List[Shape]: list of shapes with labels and coords
         """
         shapes = []
-        boxes = self.detector.predict(img)
+        polygons = self.detector.predict(img)
+        polygons = sort_boxes(polygons)
+        if len(polygons) == 0:
+            return []
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         crops = []
-        for box in boxes:
-            box = np.array(box).astype(int)
-            crops.append(img[box[1]:box[3], box[0]:box[2]])
+        for poly in polygons:
+            poly = np.array(poly).astype(int)
+            box = self.poly_to_box(poly)
+            crop = img[box[1]:box[3], box[0]:box[2]]
+            if not all(crop.shape):
+                continue
+            crops.append(crop)
         labels = self.recognizer.predict(crops)
         return shapes, labels
 
+    def poly_to_box(self, polygon):
+        pol = np.array(polygon)
+        mins = np.min(pol, axis=0)
+        maxs = np.max(pol, axis=0)
+        return mins[0], mins[1], maxs[0], maxs[1]
 
     def _setup_threads(self):
         """
