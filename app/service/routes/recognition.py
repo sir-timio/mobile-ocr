@@ -8,7 +8,7 @@ from service.core.core import HTR
 
 
 @inject
-def predict(service: HTR = Provide[Container.htr]):  # noqa: WPS404
+def predict(service: HTR = Provide[Container.htr]):
     image = cv2.imdecode(np.frombuffer(request.data, np.uint8), cv2.IMREAD_GRAYSCALE)
     label = service.predict(image)
     return label

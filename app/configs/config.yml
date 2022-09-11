@@ -1,10 +1,19 @@
 htr:
   max_threads: 1
-  # charset_path: ${}
-  model:
+  recognizer:
     model_path: ${weights_path:recognizer.script}
     device: "cpu"
-#"cuda:0"
+    img_channels: 1
+    img_height: 64
+    img_width: 512
+    vocab: " !(),-./0123456789:;?ЁАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяё#"
+    blank: "#"
+
+  detector:
+    model_path: ${weights_path:detector.script}
+    device: "cpu"
+    mean: [122.67891434, 116.66876762, 104.00698793]
+
 
 sentry:
     dsn: "https://3c0bc8764cdd4d7f87b9a198f746cfcf@o971997.ingest.sentry.io/5924413"
