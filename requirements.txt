@@ -23,5 +23,7 @@ pillow==8.3.2
 anyconfig
 pyclipper 
 editdistance
+pyclipper
+shapely
 
 # recognition

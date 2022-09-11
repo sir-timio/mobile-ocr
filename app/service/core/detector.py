@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import math
 import cv2
+from service.core.representer import Representer
 
 class Detector:
     def __init__(self, config) -> None:
@@ -12,7 +13,7 @@ class Detector:
         self.image_short_side = config['image_short_side']
         self.thresh = config['thresh']
         self.box_thresh = config['box_thresh']
-
+        self.representer = Representer(thresh=self.thresh, box_thresh=self.box_thresh)
 
     def preprocess_img(self, img):
         original_shape = img.shape[:2]
@@ -31,12 +32,14 @@ class Detector:
 
         return tensor, original_shape
     
-
-    def forward(self, img: np.ndarray):
+    def predict(self, img: np.ndarray):        
         h, w = img.shape[:2]
         batch = {'shape': [(h, w)]}
         with torch.no_grad():
             batch['image'] = torch.tensor(img).unsqueeze(0)
-            tensor, original_shape = preprocess_detector(img, image_short_side=self.image_short_side, mean=self.mean)
-            pred = self.detector(tensor.to(self.device))
-        return pred, batch
+            tensor, original_shape = self.preprocess_img(img)
+            pred = self.model(tensor.to(self.device))
+        
+        batch_boxes, batch_scores = self.representer(batch, pred, is_output_polygon=False)
+        boxes, scores = batch_boxes[0], batch_scores[0]
+        return boxes
