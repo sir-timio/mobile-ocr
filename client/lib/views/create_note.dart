@@ -10,6 +10,8 @@ import '../styles/colors.dart';
 import '../widgets/canvas.dart';
 import '../widgets/note_title.dart';
 import 'dart:ui' as ui;
+import '../models/note.dart';
+import '../models/database.dart';
 
 class CreateNote extends StatefulWidget {
   _CreateNote createState() => _CreateNote();
@@ -67,6 +69,46 @@ class _CreateNote extends State<CreateNote> {
     super.dispose();
   }
 
+  Future<void> _insertNote(Note note) async {
+    NotesDatabase notesDb = NotesDatabase();
+    await notesDb.initDatabase();
+    int result = await notesDb.insertNote(note);
+    await notesDb.closeDatabase();
+  }
+
+  void handleSaveBtn() async {
+    if (noteTitle.length == 0) {
+      if (noteText.length == 0) {
+        Navigator.pop(context);
+        return;
+      }
+      else {
+        String title = noteText.split('\n')[0];
+        if (title.length > 31) {
+          title = title.substring(0, 31);
+        }
+        setState(() {
+          noteTitle = title;
+        });
+      }
+    }
+
+    Note noteObj = Note(
+        title: noteTitle,
+        text: noteText
+    );
+
+    try {
+      await _insertNote(noteObj);
+    } catch (e) {
+      print(e);
+      print('Error inserting row');
+    } finally {
+      Navigator.pop(context);
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -98,7 +140,7 @@ class _CreateNote extends State<CreateNote> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: CustomPaint(
-                    size: Size(MediaQuery.of(context).size.width * 0.96, 450),
+                    size: Size(MediaQuery.of(context).size.width * 0.96, MediaQuery.of(context).size.height * 0.5),
                     painter: ImageCanvas(image: image),
                   ),
                 ),
@@ -150,7 +192,8 @@ class _CreateNote extends State<CreateNote> {
                             const EdgeInsetsDirectional.fromSTEB(4, 0, 0, 0),
                         child: ElevatedButton(
                           onPressed: () {
-                            print('Button pressed ...');
+                            print('Save button pressed ...');
+                            handleSaveBtn();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primary,

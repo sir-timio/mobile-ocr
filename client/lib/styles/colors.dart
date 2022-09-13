@@ -8,3 +8,4 @@ Color secondaryBg = const Color.fromRGBO(255, 255, 255, 1);
 Color primaryText = const Color.fromRGBO(16, 18, 19, 1);
 Color secondaryText = const Color.fromRGBO(128, 128, 128, 1);
 Color primaryIcon = const Color.fromRGBO(238, 238, 238, 1.0);
+Color primaryAccent = const Color.fromRGBO(234, 234, 234, 1.0);
