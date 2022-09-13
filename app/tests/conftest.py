@@ -36,8 +36,10 @@ def config():
 @pytest.fixture(scope='session')
 def model(config):  # noqa: WPS442
     model = HTR(config['htr'])
-    input_data = torch.rand(3, 640, 640)
-    model.predict(input_data)
+    assert hasattr(model, 'recognizer')
+    assert hasattr(model, 'detector')
+    img = np.zeros((641, 644, 3), dtype=np.uint8)
+    model.predict(img)
     return model
 
 

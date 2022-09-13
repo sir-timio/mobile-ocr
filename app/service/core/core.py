@@ -34,8 +34,7 @@ class HTR:
         polygons = self.detector.predict(img)
         # polygons = sort_boxes(polygons)
         if len(polygons) == 0:
-            return []
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+            return ''
         crops = []
         for poly in polygons:
             poly = np.array(poly).astype(int)

@@ -24,6 +24,8 @@ class Recognizer:
         self.beam_width = 50
     
     def predict(self, imgs: np.ndarray):
+        if len(imgs) == 0:
+            return ''
         input_tensor = torch.stack([self.preprocess_img(i) for i in imgs])
         with torch.no_grad():
             output_tensor = self.model(input_tensor.to(self.device))

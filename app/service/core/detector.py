@@ -18,7 +18,7 @@ class Detector:
 
     def preprocess_img(self, img):
         original_shape = img.shape[:2]
-        height, width, _ = img.shape
+        height, width= img.shape[:2]
         if height < width:
             new_height = self.image_short_side
             new_width = int(math.ceil(new_height / height * width / 32) * 32)
