@@ -1,10 +1,40 @@
+dependency-injector==4.35.2
+sentry_sdk[flask]
+pytest
+omegaconf==2.1.0
+werkzeug==2.0.3
+
+# service
+Flask==2.0.1
+
+# server
+gunicorn==20.1.0
+
+# sanbox
+jupyter
+# core
+# numpy==1.21.1
+opencv-python-headless==4.5.3.56
+pandas
+pillow==8.3.2
+matplotlib
+
+
+# detection
+anyconfig
+pyclipper 
+editdistance
+pyclipper
+shapely
+sklearn
+
+# recognition
 numpy==1.19.5
-torch==1.9.0
-clearml==1.0.4
+# torch==1.9.0
 tqdm==4.62.2
 pandas==1.1.5
-scikit-learn==0.24.2
+scikit-learn
 editdistance
 omegaconf
 werkzeug==2.0.3
-Flask==2.2.2
+pyctcdecode

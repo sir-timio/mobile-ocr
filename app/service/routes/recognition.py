@@ -9,7 +9,8 @@ from service.core.core import HTR
 
 @inject
 def predict(service: HTR = Provide[Container.htr]):
-    image = cv2.imdecode(np.frombuffer(request.data, np.uint8), cv2.IMREAD_COLOR)
-    label = service.predict(image)
+    img = cv2.imdecode(np.frombuffer(request.data, np.uint8), cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    label = service.predict(img)
     return label
 

@@ -32,7 +32,7 @@ class HTR:
         """
         shapes = []
         polygons = self.detector.predict(img)
-        polygons = sort_boxes(polygons)
+        # polygons = sort_boxes(polygons)
         if len(polygons) == 0:
             return []
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -45,7 +45,8 @@ class HTR:
                 continue
             crops.append(crop)
         labels = self.recognizer.predict(crops)
-        return shapes, labels
+
+        return labels[0]
 
     def poly_to_box(self, polygon):
         pol = np.array(polygon)
