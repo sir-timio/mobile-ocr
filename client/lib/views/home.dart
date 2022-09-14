@@ -31,7 +31,6 @@ class _Home extends State<Home> {
   List<Map<String, dynamic>>? notesData;
   List<int> selectedNoteIds = [];
 
-
   void afterNavigatorPop() {
     setState(() {});
   }
@@ -145,8 +144,9 @@ class _Home extends State<Home> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   notesData = snapshot.data;
+                  print(notesData);
                   return Stack(
-                    children: <Widget> [
+                    children: <Widget>[
                       // Display Notes
                       NotesList(
                         refreshPage,
@@ -177,7 +177,8 @@ class _Home extends State<Home> {
 
 Route _createRoute(status, data) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => CreateNote([status, data]),
+    pageBuilder: (context, animation, secondaryAnimation) =>
+        CreateNote([status, data]),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

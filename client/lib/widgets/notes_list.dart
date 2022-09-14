@@ -10,13 +10,13 @@ class NotesList extends StatelessWidget {
   final handleNoteListTapAfterSelect;
 
   NotesList(
-      this.refreshPage,
-      this.data,
-      this.selectedNoteIds,
-      this.afterNavigatorPop,
-      this.handleNoteListLongPress,
-      this.handleNoteListTapAfterSelect,
-      );
+    this.refreshPage,
+    this.data,
+    this.selectedNoteIds,
+    this.afterNavigatorPop,
+    this.handleNoteListLongPress,
+    this.handleNoteListTapAfterSelect,
+  );
 
   @override
   Widget build(BuildContext context) {

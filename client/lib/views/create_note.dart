@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:client/widgets/note_text.dart';
 import 'package:flutter/foundation.dart';
@@ -17,7 +18,6 @@ class CreateNote extends StatefulWidget {
   final args;
 
   const CreateNote(this.args);
-
   _CreateNote createState() => _CreateNote();
 }
 
@@ -25,6 +25,7 @@ class _CreateNote extends State<CreateNote> {
   String noteTitle = '';
   String noteText = '';
   ui.Image? image;
+  String? image_path = '';
 
   final TextEditingController _titleTextController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
@@ -41,6 +42,7 @@ class _CreateNote extends State<CreateNote> {
     });
   }
 
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +54,8 @@ class _CreateNote extends State<CreateNote> {
     _textController.text =
         (widget.args[0] == 'new' ? '' : widget.args[1]['text']);
 
+    _getImage(widget.args[1]['image']);
+
     _titleTextController.addListener(handleTitleTextChange);
     _textController.addListener(handleTextChange);
   }
@@ -61,18 +65,23 @@ class _CreateNote extends State<CreateNote> {
     final XFile? imageFile =
         await picker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
-      final path = imageFile.path;
+      image_path = imageFile.path;
       Uint8List bytes;
-      if (kIsWeb) {
-        bytes = await imageFile.readAsBytes();
-      } else {
-        bytes = await File(path).readAsBytes();
-      }
+      bytes = await File(imageFile.path!).readAsBytes();
       ui.Codec codec = await ui.instantiateImageCodec(bytes);
       ui.FrameInfo frame = await codec.getNextFrame();
       image = frame.image;
       setState(() {});
     }
+  }
+
+  Future<void> _getImage(path) async {
+    Uint8List bytes;
+    bytes = await File(path).readAsBytes();
+    ui.Codec codec = await ui.instantiateImageCodec(bytes);
+    ui.FrameInfo frame = await codec.getNextFrame();
+    image = frame.image;
+    setState(() {});
   }
 
   @override
@@ -113,7 +122,7 @@ class _CreateNote extends State<CreateNote> {
     }
 
     if (widget.args[0] == 'new') {
-      Note noteObj = Note(title: noteTitle, text: noteText);
+      Note noteObj = Note(title: noteTitle, text: noteText, image: image_path);
       try {
         await _insertNote(noteObj);
       } catch (e) {
@@ -126,7 +135,7 @@ class _CreateNote extends State<CreateNote> {
     // Update Note
     else if (widget.args[0] == 'update') {
       Note noteObj =
-          Note(id: widget.args[1]['id'], title: noteTitle, text: noteText);
+          Note(id: widget.args[1]['id'], title: noteTitle, text: noteText, image: image_path);
       try {
         await _updateNote(noteObj);
       } catch (e) {

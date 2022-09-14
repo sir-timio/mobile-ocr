@@ -20,7 +20,8 @@ class NotesDatabase {
               (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT,
-                text TEXT
+                text TEXT,
+                image TEXT
               )
               '''
           );

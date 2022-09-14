@@ -1,12 +1,16 @@
+import 'dart:typed_data';
+
 class Note {
   int? id;
   String title;
   String text;
+  String? image;
 
   Note({
     this.id = null,
     this.title = "No title",
-    this.text = "No text"
+    this.text = "No text",
+    this.image
 });
 
   Map<String, dynamic> toMap() {
@@ -16,6 +20,7 @@ class Note {
     }
     data['title'] = title;
     data['text'] = text;
+    data['image'] = image;
     return data;
   }
 
@@ -23,7 +28,8 @@ class Note {
     return {
       'id': id,
       'title': title,
-      'text': text
+      'text': text,
+      'image': image
     }.toString();
   }
 }
