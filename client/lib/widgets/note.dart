@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../styles/colors.dart';
+import '../views/create_note.dart';
 
 class Note extends StatelessWidget {
+  final Function refreshPage;
   final notesData;
   final selectedNoteIds;
   final selectedNote;
@@ -11,13 +13,14 @@ class Note extends StatelessWidget {
   final handleNoteListTapAfterSelect;
 
   Note(
-      this.notesData,
-      this.selectedNoteIds,
-      this.selectedNote,
-      this.callAfterNavigatorPop,
-      this.handleNoteListLongPress,
-      this.handleNoteListTapAfterSelect,
-      );
+    this.refreshPage,
+    this.notesData,
+    this.selectedNoteIds,
+    this.selectedNote,
+    this.callAfterNavigatorPop,
+    this.handleNoteListLongPress,
+    this.handleNoteListTapAfterSelect,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +35,9 @@ class Note extends StatelessWidget {
           onTap: () {
             if (selectedNote == false) {
               if (selectedNoteIds.length == 0) {
+                Navigator.of(context)
+                    .push(_createRoute('update', notesData))
+                    .then((res) => refreshPage());
               } else {
                 handleNoteListLongPress(notesData['id']);
               }
@@ -68,8 +74,8 @@ class Note extends StatelessWidget {
                       Text(
                         notesData['text'] != null
                             ? notesData['text'].length > 32
-                            ? notesData['text'].substring(0, 32) + "..."
-                            : notesData['text'].split('\n')[0]
+                                ? notesData['text'].substring(0, 32) + "..."
+                                : notesData['text'].split('\n')[0]
                             : "",
                         style: TextStyle(
                           color: secondaryText,
@@ -87,4 +93,23 @@ class Note extends StatelessWidget {
       ),
     );
   }
+}
+
+Route _createRoute(status, data) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) =>
+        CreateNote([status, data]),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(0.0, 1.0);
+      const end = Offset.zero;
+      const curve = Curves.ease;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
 }

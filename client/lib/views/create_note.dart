@@ -14,6 +14,10 @@ import '../models/note.dart';
 import '../models/database.dart';
 
 class CreateNote extends StatefulWidget {
+  final args;
+
+  const CreateNote(this.args);
+
   _CreateNote createState() => _CreateNote();
 }
 
@@ -40,13 +44,22 @@ class _CreateNote extends State<CreateNote> {
   @override
   void initState() {
     super.initState();
+    noteTitle = (widget.args[0] == 'new' ? '' : widget.args[1]['title']);
+    noteText = (widget.args[0] == 'new' ? '' : widget.args[1]['text']);
+
+    _titleTextController.text =
+        (widget.args[0] == 'new' ? '' : widget.args[1]['title']);
+    _textController.text =
+        (widget.args[0] == 'new' ? '' : widget.args[1]['text']);
+
     _titleTextController.addListener(handleTitleTextChange);
     _textController.addListener(handleTextChange);
   }
 
   _getFromGallery() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? imageFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? imageFile =
+        await picker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
       final path = imageFile.path;
       Uint8List bytes;
@@ -76,13 +89,19 @@ class _CreateNote extends State<CreateNote> {
     await notesDb.closeDatabase();
   }
 
+  Future<void> _updateNote(Note note) async {
+    NotesDatabase notesDb = NotesDatabase();
+    await notesDb.initDatabase();
+    int result = await notesDb.updateNote(note);
+    await notesDb.closeDatabase();
+  }
+
   void handleSaveBtn() async {
     if (noteTitle.length == 0) {
       if (noteText.length == 0) {
         Navigator.pop(context);
         return;
-      }
-      else {
+      } else {
         String title = noteText.split('\n')[0];
         if (title.length > 31) {
           title = title.substring(0, 31);
@@ -93,19 +112,28 @@ class _CreateNote extends State<CreateNote> {
       }
     }
 
-    Note noteObj = Note(
-        title: noteTitle,
-        text: noteText
-    );
+    if (widget.args[0] == 'new') {
+      Note noteObj = Note(title: noteTitle, text: noteText);
+      try {
+        await _insertNote(noteObj);
+      } catch (e) {
+      } finally {
+        Navigator.pop(context);
+        return;
+      }
+    }
 
-    try {
-      await _insertNote(noteObj);
-    } catch (e) {
-      print(e);
-      print('Error inserting row');
-    } finally {
-      Navigator.pop(context);
-      return;
+    // Update Note
+    else if (widget.args[0] == 'update') {
+      Note noteObj =
+          Note(id: widget.args[1]['id'], title: noteTitle, text: noteText);
+      try {
+        await _updateNote(noteObj);
+      } catch (e) {
+      } finally {
+        Navigator.pop(context);
+        return;
+      }
     }
   }
 
@@ -140,7 +168,8 @@ class _CreateNote extends State<CreateNote> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: CustomPaint(
-                    size: Size(MediaQuery.of(context).size.width * 0.96, MediaQuery.of(context).size.height * 0.5),
+                    size: Size(MediaQuery.of(context).size.width * 0.96,
+                        MediaQuery.of(context).size.height * 0.5),
                     painter: ImageCanvas(image: image),
                   ),
                 ),

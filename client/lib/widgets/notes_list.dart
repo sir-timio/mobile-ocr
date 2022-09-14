@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'note.dart';
 
 class NotesList extends StatelessWidget {
+  final Function refreshPage;
   final data;
   final selectedNoteIds;
   final afterNavigatorPop;
@@ -9,6 +10,7 @@ class NotesList extends StatelessWidget {
   final handleNoteListTapAfterSelect;
 
   NotesList(
+      this.refreshPage,
       this.data,
       this.selectedNoteIds,
       this.afterNavigatorPop,
@@ -23,6 +25,7 @@ class NotesList extends StatelessWidget {
         itemBuilder: (context, index) {
           dynamic item = data[index];
           return Note(
+            refreshPage,
             item,
             selectedNoteIds,
             (selectedNoteIds.contains(item['id']) == false ? false : true),
