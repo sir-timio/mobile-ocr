@@ -1,1 +1,1 @@
-docker build . -n ocr
+docker build . -t ocr
