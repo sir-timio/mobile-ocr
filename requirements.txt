@@ -23,5 +23,17 @@ pillow==8.3.2
 anyconfig
 pyclipper 
 editdistance
+pyclipper
+shapelydd
+sklearn
 
 # recognition
+numpy==1.19.5
+# torch==1.9.0
+tqdm==4.62.2
+pandas==1.1.5
+scikit-learn==0.24.2
+editdistance
+omegaconf
+werkzeug==2.0.3
+Flask==2.2.2
