@@ -13,11 +13,13 @@ import '../widgets/note_title.dart';
 import 'dart:ui' as ui;
 import '../models/note.dart';
 import '../models/database.dart';
+import 'package:http/http.dart' as http;
 
 class CreateNote extends StatefulWidget {
   final args;
 
   const CreateNote(this.args);
+
   _CreateNote createState() => _CreateNote();
 }
 
@@ -42,6 +44,32 @@ class _CreateNote extends State<CreateNote> {
     });
   }
 
+  Future<void> _showAlert(String text) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error!'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(text),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -78,6 +106,7 @@ class _CreateNote extends State<CreateNote> {
   Future<void> _getImage(path) async {
     Uint8List bytes;
     bytes = await File(path).readAsBytes();
+    image_path = path;
     ui.Codec codec = await ui.instantiateImageCodec(bytes);
     ui.FrameInfo frame = await codec.getNextFrame();
     image = frame.image;
@@ -108,7 +137,7 @@ class _CreateNote extends State<CreateNote> {
   void handleSaveBtn() async {
     if (noteTitle.length == 0) {
       if (noteText.length == 0) {
-        Navigator.pop(context);
+        _showAlert('Note is empty!');
         return;
       } else {
         String title = noteText.split('\n')[0];
@@ -126,24 +155,43 @@ class _CreateNote extends State<CreateNote> {
       try {
         await _insertNote(noteObj);
       } catch (e) {
+        _showAlert(e.toString());
+        return;
       } finally {
         Navigator.pop(context);
         return;
       }
-    }
-
-    // Update Note
-    else if (widget.args[0] == 'update') {
-      Note noteObj =
-          Note(id: widget.args[1]['id'], title: noteTitle, text: noteText, image: image_path);
+    } else if (widget.args[0] == 'update') {
+      Note noteObj = Note(
+          id: widget.args[1]['id'],
+          title: noteTitle,
+          text: noteText,
+          image: image_path);
       try {
         await _updateNote(noteObj);
       } catch (e) {
+        _showAlert(e.toString());
+        return;
       } finally {
         Navigator.pop(context);
         return;
       }
     }
+  }
+
+  Future<String> upload(filepath) async {
+    try {
+      Uint8List bytes = File(filepath).readAsBytesSync() as Uint8List;
+      final response = await http.post(
+        Uri.parse("http://127.0.0.1:8080/predict"),
+        body: bytes,
+      );
+      print(response.body);
+    } catch (e) {
+      _showAlert(e.toString());
+      print(e);
+    }
+    return '';
   }
 
   @override
@@ -167,85 +215,90 @@ class _CreateNote extends State<CreateNote> {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CustomPaint(
-                    size: Size(MediaQuery.of(context).size.width * 0.96,
-                        MediaQuery.of(context).size.height * 0.5),
-                    painter: ImageCanvas(image: image),
+        body: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CustomPaint(
+                      size: Size(MediaQuery.of(context).size.width * 0.96,
+                          MediaQuery.of(context).size.height * 0.5),
+                      painter: ImageCanvas(image: image),
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: NoteText(_textController),
-              ),
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _getFromGallery();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    backgroundColor: primary,
-                    elevation: 2,
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.5 - 210,
+                  child: NoteText(_textController),
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _getFromGallery();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: primary,
+                      elevation: 2,
+                    ),
+                    child: const Text('Upload Image'),
                   ),
-                  child: const Text('Upload Image'),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding:
-                            const EdgeInsetsDirectional.fromSTEB(0, 0, 4, 0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            print('Button pressed ...');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primary,
-                            elevation: 2,
-                            minimumSize: const Size(double.infinity, 50),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding:
+                              const EdgeInsetsDirectional.fromSTEB(0, 0, 4, 0),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              print('Recognize button pressed ...');
+                              upload(image_path!);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primary,
+                              elevation: 2,
+                              minimumSize: const Size(double.infinity, 50),
+                            ),
+                            child: const Text('Recognize'),
                           ),
-                          child: const Text('Recognize'),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding:
-                            const EdgeInsetsDirectional.fromSTEB(4, 0, 0, 0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            print('Save button pressed ...');
-                            handleSaveBtn();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primary,
-                            elevation: 2,
-                            minimumSize: const Size(double.infinity, 50),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                              const EdgeInsetsDirectional.fromSTEB(4, 0, 0, 0),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              print('Save button pressed ...');
+                              handleSaveBtn();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primary,
+                              elevation: 2,
+                              minimumSize: const Size(double.infinity, 50),
+                            ),
+                            child: const Text('Save'),
                           ),
-                          child: const Text('Save'),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
