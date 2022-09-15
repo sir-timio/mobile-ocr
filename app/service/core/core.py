@@ -1,7 +1,7 @@
 from typing import Dict, List
 from dataclasses import dataclass
 import json
-
+from flask import jsonify
 import cv2
 import numpy as np
 import torch
@@ -36,17 +36,22 @@ class HTR:
         if len(polygons) == 0:
             return ''
         crops = []
+        boxes = []
         for poly in polygons:
             poly = np.array(poly).astype(int)
             box = self.poly_to_box(poly)
+            
             crop = img[box[1]:box[3], box[0]:box[2]]
             if not all(crop.shape):
                 continue
+            box = list(map(int, box))
+            boxes.append([[box[0], box[2]], [box[1], box[3]]])
             crops.append(crop)
         labels = self.recognizer.predict(crops)
-
-        return labels[0]
-
+        data = list(zip(boxes, labels))
+        return json.dumps(data, ensure_ascii=False).encode('utf8')
+        # return jsonify(data)
+        
     def poly_to_box(self, polygon):
         pol = np.array(polygon)
         mins = np.min(pol, axis=0)

@@ -11,6 +11,10 @@ RUN apt-get update && \
   apt install -y tmux && \
     pip install --no-cache-dir -r requirements.txt
 
+
+RUN apt-get install build-essential libboost-all-dev cmake zlib1g-dev libbz2-dev liblzma-dev -y
+RUN pip install https://github.com/kpu/kenlm/archive/master.zip
+
 # CMD [ "python","run_app.py"]
 #Expose server port
 # EXPOSE 8080
