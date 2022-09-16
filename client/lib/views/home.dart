@@ -144,7 +144,6 @@ class _Home extends State<Home> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   notesData = snapshot.data;
-                  print(notesData);
                   return Stack(
                     children: <Widget>[
                       // Display Notes

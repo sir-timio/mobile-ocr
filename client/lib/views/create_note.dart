@@ -1,3 +1,4 @@
+import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -14,6 +15,7 @@ import 'dart:ui' as ui;
 import '../models/note.dart';
 import '../models/database.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 class CreateNote extends StatefulWidget {
   final args;
@@ -28,6 +30,7 @@ class _CreateNote extends State<CreateNote> {
   String noteText = '';
   ui.Image? image;
   String? image_path = '';
+  List<dynamic>? points = [];
 
   final TextEditingController _titleTextController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
@@ -83,6 +86,7 @@ class _CreateNote extends State<CreateNote> {
         (widget.args[0] == 'new' ? '' : widget.args[1]['text']);
 
     _getImage(widget.args[1]['image']);
+    points = (widget.args[1]['points'] != null ? _getPoints(widget.args[1]['points']) : []);
 
     _titleTextController.addListener(handleTitleTextChange);
     _textController.addListener(handleTextChange);
@@ -99,8 +103,18 @@ class _CreateNote extends State<CreateNote> {
       ui.Codec codec = await ui.instantiateImageCodec(bytes);
       ui.FrameInfo frame = await codec.getNextFrame();
       image = frame.image;
+      points = [];
       setState(() {});
     }
+  }
+
+  List<dynamic> _getPoints(points) {
+    List<dynamic> result = convert.jsonDecode(points);
+    List<dynamic> p = [];
+    for (var i = result.length - 1; i >= 0; i--) {
+      p!.add([result[i][0], result[i][1]]);
+    }
+    return p;
   }
 
   Future<void> _getImage(path) async {
@@ -150,8 +164,30 @@ class _CreateNote extends State<CreateNote> {
       }
     }
 
+    String strPoints = '[]';
+    if (points!.length > 0) {
+      strPoints = '[';
+      for (var i = 0; i < points!.length - 1; i++) {
+        strPoints += '[' +
+            points![i][0].toString() +
+            ', ' +
+            points![i][1].toString() +
+            '], ';
+      }
+      strPoints += '[' +
+          points![points!.length - 1][0].toString() +
+          ',' +
+          points![points!.length - 1][1].toString() +
+          ']';
+      strPoints += ']';
+    }
+
     if (widget.args[0] == 'new') {
-      Note noteObj = Note(title: noteTitle, text: noteText, image: image_path);
+      Note noteObj = Note(
+          title: noteTitle,
+          text: noteText,
+          image: image_path,
+          points: strPoints);
       try {
         await _insertNote(noteObj);
       } catch (e) {
@@ -166,7 +202,8 @@ class _CreateNote extends State<CreateNote> {
           id: widget.args[1]['id'],
           title: noteTitle,
           text: noteText,
-          image: image_path);
+          image: image_path,
+          points: strPoints);
       try {
         await _updateNote(noteObj);
       } catch (e) {
@@ -186,7 +223,19 @@ class _CreateNote extends State<CreateNote> {
         Uri.parse("http://127.0.0.1:8080/predict"),
         body: bytes,
       );
-      print(response.body);
+      List<dynamic> result = convert.jsonDecode(response.body);
+      noteText = '';
+      points = [];
+      for (var i = result.length - 1; i >= 0; i--) {
+        points!.add(result[i][0]);
+        if (result[i][1] == '') {
+          noteText += ' ';
+        } else {
+          noteText += result[i][1] + ' ';
+        }
+      }
+      _textController.text = noteText;
+      setState(() {});
     } catch (e) {
       _showAlert(e.toString());
       print(e);
@@ -229,7 +278,7 @@ class _CreateNote extends State<CreateNote> {
                     child: CustomPaint(
                       size: Size(MediaQuery.of(context).size.width * 0.96,
                           MediaQuery.of(context).size.height * 0.5),
-                      painter: ImageCanvas(image: image),
+                      painter: ImageCanvas(image: image, points: points),
                     ),
                   ),
                 ),

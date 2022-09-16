@@ -5,12 +5,14 @@ class Note {
   String title;
   String text;
   String? image;
+  String? points;
 
   Note({
     this.id = null,
     this.title = "No title",
     this.text = "No text",
-    this.image
+    this.image,
+    this.points
 });
 
   Map<String, dynamic> toMap() {
@@ -21,6 +23,7 @@ class Note {
     data['title'] = title;
     data['text'] = text;
     data['image'] = image;
+    data['points'] = points;
     return data;
   }
 
@@ -29,7 +32,8 @@ class Note {
       'id': id,
       'title': title,
       'text': text,
-      'image': image
+      'image': image,
+      'points': points
     }.toString();
   }
 }

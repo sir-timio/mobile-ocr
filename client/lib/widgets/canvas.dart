@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
 class ImageCanvas extends CustomPainter {
-  ImageCanvas({required this.image});
+  ImageCanvas({required this.image, this.points});
 
   ui.Image? image;
+  List<dynamic>? points;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -43,11 +44,24 @@ class ImageCanvas extends CustomPainter {
 
       var framePaint = Paint()
         ..color = secondary
-        ..strokeWidth = 5;
+        ..strokeWidth = 1;
 
-      var points = [Offset(0 + offsetX, 0 + offsetY), Offset(inputSize.width * scaleX + offsetX, inputSize.height * scaleY + offsetY)];
+      if (points!.length > 0) {
+        for (var i = 0; i < points!.length; i++) {
+          var leftUp = Offset(points![i][0][0] * scaleX + offsetX, points![i][1][0] * scaleY + offsetY);
+          var leftDown = Offset(points![i][0][0] * scaleX + offsetX, points![i][1][1] * scaleY + offsetY);
+          var RightUp = Offset(points![i][0][1] * scaleX + offsetX, points![i][1][0] * scaleY + offsetY);
+          var downRight = Offset(points![i][0][1] * scaleX + offsetX, points![i][1][1] * scaleY + offsetY);
 
-      canvas.drawPoints(PointMode.points, points, framePaint);
+          //print(leftUp);
+          //print(downRight);
+          //print('--');
+          canvas.drawLine(leftUp, leftDown, framePaint);
+          canvas.drawLine(leftDown, downRight, framePaint);
+          canvas.drawLine(downRight, RightUp, framePaint);
+          canvas.drawLine(leftUp, RightUp, framePaint);
+        }
+      }
     } else {
       const icon = Icons.photo_size_select_actual;
       TextPainter textPainter = TextPainter(textDirection: TextDirection.rtl);
