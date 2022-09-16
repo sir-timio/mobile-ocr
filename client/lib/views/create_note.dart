@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../styles/colors.dart';
 import '../widgets/canvas.dart';
@@ -16,6 +17,7 @@ import '../models/note.dart';
 import '../models/database.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+import 'package:path/path.dart' as path;
 
 class CreateNote extends StatefulWidget {
   final args;
@@ -97,9 +99,13 @@ class _CreateNote extends State<CreateNote> {
     final XFile? imageFile =
         await picker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
-      image_path = imageFile.path;
+      Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
+      String appDocumentsPath = appDocumentsDirectory.path;
+      var fileName = path.basename(imageFile.path!);
+      await imageFile.saveTo('$appDocumentsPath/$fileName');
+      image_path = '$appDocumentsPath/$fileName';
       Uint8List bytes;
-      bytes = await File(imageFile.path!).readAsBytes();
+      bytes = await File(image_path!).readAsBytes();
       ui.Codec codec = await ui.instantiateImageCodec(bytes);
       ui.FrameInfo frame = await codec.getNextFrame();
       image = frame.image;
