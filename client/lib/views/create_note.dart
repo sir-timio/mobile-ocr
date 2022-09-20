@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../constants/environment.dart';
 import '../styles/colors.dart';
 import '../widgets/canvas.dart';
 import '../widgets/note_title.dart';
@@ -226,7 +227,7 @@ class _CreateNote extends State<CreateNote> {
     try {
       Uint8List bytes = File(filepath).readAsBytesSync() as Uint8List;
       final response = await http.post(
-        Uri.parse("http://127.0.0.1:8080/predict"),
+        Uri.parse(API_ADDRESS!),
         body: bytes,
       );
       List<dynamic> result = convert.jsonDecode(response.body);
